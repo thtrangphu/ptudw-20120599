@@ -7,12 +7,12 @@ const router = express.Router();
 const controller = require("../controllers/indexController");
 
 // Chi de tao csdl, neu tao xong roi thi comment de khoi tao nua
-router.get("/createTables", (req, res) => {
-  let models = require("../models");
-  models.sequelize.sync().then(() => {
-    res.send("tables created successfully");
-  });
-});
+// router.get("/createTables", (req, res) => {
+//   let models = require("../models");
+//   models.sequelize.sync().then(() => {
+//     res.send("tables created successfully");
+//   });
+// });
 
 router.get("/", controller.showHomePage);
 
