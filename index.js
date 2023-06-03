@@ -1,6 +1,7 @@
 // "use strict"; sử dụng strict mode -> môi trường an toàn hơn.
 "use strict";
-
+// doc cau hinh all bien mt trong localhost
+require("dotenv").config();
 //Import thư viện Express,  framework phổ biến trong Node.js
 const express = require("express");
 const path = require("path"); // Thêm dòng này để định nghĩa biến path
@@ -12,8 +13,8 @@ const session = require("express-session");
 const redisStore = require("connect-redis").default;
 const { createClient } = require("redis");
 const redisClient = createClient({
-  // url: "rediss://red-chsck6bhp8u4o31fjic0:D8cQ3aJF0yBK81s7FIub3H14Xq8OYM0L@singapore-redis.render.com:6379",
-  url: "redis://red-chsck6bhp8u4o31fjic0:6379",
+  url: process.env.REDIS_URL,
+  // url: "redis://red-chsck6bhp8u4o31fjic0:6379",
 });
 
 redisClient.connect().catch(console.error);
@@ -51,7 +52,7 @@ app.use(express.urlencoded({ extended: false }));
 // cau hinh sd session
 app.use(
   session({
-    secret: "S3cret",
+    secret: process.env.SESSION_SECRET,
     store: new redisStore({ client: redisClient }),
     resave: false,
     saveUninitialized: false,
