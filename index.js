@@ -8,6 +8,15 @@ const app = express();
 const expressHandlebars = require("express-handlebars");
 const { createStarList } = require("./controllers/handlebarsHelper");
 const { createPagination } = require("express-handlebars-paginate");
+const session = require("express-session");
+const redisStore = require("connect-redis").default;
+const { createClient } = require("redis");
+const redisClient = createClient({
+  url: "rediss://red-chsck6bhp8u4o31fjic0:D8cQ3aJF0yBK81s7FIub3H14Xq8OYM0L@singapore-redis.render.com:6379",
+});
+
+redisClient.connect().catch(console.error);
+
 // cau hinh public static folder
 app.use(express.static(path.join(__dirname + "/public")));
 
@@ -33,6 +42,33 @@ app.set("view engine", "hbs");
 
 // xây dựng port number
 const port = process.env.port || 5000;
+
+// cau hinh doc du lieu post tu body
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// cau hinh sd session
+app.use(
+  session({
+    secret: "S3cret",
+    store: new redisStore({ client: redisClient }),
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 20 * 60 * 1000, //20phut
+    },
+  })
+);
+
+// middleware khoi tao gio hang
+app.use(function (req, res, next) {
+  let Cart = require("./controllers/cart");
+  req.session.cart = new Cart(req.session.cart ? req.session.cart : {});
+  res.locals.quantity = req.session.cart.quantity;
+
+  next();
+});
 
 // routes
 app.use("/", require("./routes/indexRouter"));
