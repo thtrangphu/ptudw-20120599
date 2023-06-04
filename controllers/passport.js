@@ -62,7 +62,7 @@ passport.use(
         }
         done(null, req.user);
       } catch (error) {
-        done(error, null);
+        done(error);
       }
     }
   )
