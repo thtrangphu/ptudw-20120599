@@ -4,34 +4,36 @@
 require("dotenv").config();
 //Import thư viện Express,  framework phổ biến trong Node.js
 const express = require("express");
+const path = require("path"); // Thêm dòng này để định nghĩa biến path
 const app = express();
-const port = process.env.port || 5001;
-const expressHandleBars = require("express-handlebars");
+const expressHandlebars = require("express-handlebars");
 const { createStarList } = require("./controllers/handlebarsHelper");
 const { createPagination } = require("express-handlebars-paginate");
+const session = require("express-session");
 const redisStore = require("connect-redis").default;
 const { createClient } = require("redis");
-const session = require("express-session");
 const redisClient = createClient({
   url: process.env.REDIS_URL,
+  // url: "redis://red-chsck6bhp8u4o31fjic0:6379",
 });
 
 redisClient.connect().catch(console.error);
-
 const passport = require("./controllers/passport");
 const flash = require("connect-flash");
-//cau hinh public static
-app.use(express.static(__dirname + "/public"));
 
-//cau hinh su dung express handle bar
+// cau hinh public static folder
+app.use(express.static(path.join(__dirname + "/public")));
+
+// cau hinh su dung express handlebars
 app.engine(
   "hbs",
-  expressHandleBars.engine({
+  expressHandlebars.engine({
     layoutsDir: __dirname + "/views/layouts",
     partialsDir: __dirname + "/views/partials",
     extname: "hbs",
-    defaultLayout: "layout",
+    defaultLayout: "layouts",
     runtimeOptions: {
+      // cho phep truy xuat den thuoc tinh cua mang mac dinh
       allowProtoPropertiesByDefault: true,
     },
     helpers: {
@@ -42,10 +44,14 @@ app.engine(
 );
 app.set("view engine", "hbs");
 
+// xây dựng port number
+const port = process.env.port || 5000;
+
+// cau hinh doc du lieu post tu body
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// cau hinh su dung session
+// cau hinh sd session
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -54,33 +60,44 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      maxAge: 20 * 60 * 1000, // 20 mins
+      maxAge: 20 * 60 * 1000, //20phut
     },
   })
 );
-//cau hinh su dung passport
+
+// cau hinh su dung passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-//cau hinh su dung connect-flash
+// cau hinh su dung connect-flash
 app.use(flash());
 
-//midleware khoi tao gio hang
-app.use((req, res, next) => {
+// middleware khoi tao gio hang
+app.use(function (req, res, next) {
   let Cart = require("./controllers/cart");
   req.session.cart = new Cart(req.session.cart ? req.session.cart : {});
   res.locals.quantity = req.session.cart.quantity;
   res.locals.isLoggedIn = req.isAuthenticated();
+
   next();
 });
 
-//cau hinh route
-app.use("/", require("./routes/indexRoute"));
+// routes
+app.use("/", require("./routes/indexRouter"));
 app.use("/products", require("./routes/productsRouter"));
 app.use("/users", require("./routes/authRouter"));
 app.use("/users", require("./routes/usersRouter"));
 
-//khoi dong web server
+app.use((req, res, next) => {
+  res.status(404).render("error", { message: "File Not Found" });
+});
+
+app.use((error, req, res, next) => {
+  console.error(error);
+  res.status(500).render("error", { message: "Internal Server Error" });
+});
+
+// khoi dong server
 app.listen(port, () => {
-  console.log(`server is running on ${port}`);
+  console.log(`server listening on ${port}`);
 });
