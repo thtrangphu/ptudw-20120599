@@ -45,6 +45,7 @@ controller.logout = (req, res, next) => {
     if (error) {
       return next(error);
     }
+    // lưu giỏ hàng lại để khỏi mất
     req.session.cart = cart;
     res.redirect("/");
   });
