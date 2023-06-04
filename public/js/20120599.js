@@ -25,7 +25,7 @@ async function updateCart(id, quantity) {
     });
     if (res.status == 200) {
       let json = await res.json();
-      document.getElementById("cart-quantity").innerText = `(${json.quantity})`;
+      document.getElementById("cart-quantity").innerText = `${json.quantity}`;
       document.getElementById("subtotal").innerText = `$${json.subtotal}`;
       document.getElementById("total").innerText = `$${json.total}`;
       document.getElementById(`total${id}`).innerText = `$${json.item.total}`;
@@ -73,7 +73,7 @@ async function clearCart() {
       },
     });
     if (res.status == 200) {
-      document.getElementById("cart-quantity").innerText = "0";
+      document.getElementById("cart-quantity").innerText = `(0)`;
       document.querySelector(
         ".cart-page .container"
       ).innerHTML = `<div class="text-center border py-3">
@@ -83,14 +83,16 @@ async function clearCart() {
   }
 }
 
-// function checkPasswordConfirm(formId){
-//     let password = document.querySelector(`#${formId} [name=password]`);
-//     let confirmPassword = document.querySelector(`#${formId} [name=confirmPassword]`);
+function checkPasswordConfirm(formId) {
+  let password = document.querySelector(`#${formId} [name=password]`);
+  let confirmPassword = document.querySelector(
+    `#${formId} [name=confirmPassword]`
+  );
 
-//     if (password.value != confirmPassword.value){
-//         confirmPassword.setCustomValidity('Password not match');
-//         confirmPassword.reportValidity();
-//     } else {
-//         confirmPassword.setCustomValidity('');
-//     }
-// }
+  if (password.value != confirmPassword.value) {
+    confirmPassword.setCustomValidity("Password not match");
+    confirmPassword.reportValidity();
+  } else {
+    confirmPassword.setCustomValidity("");
+  }
+}
