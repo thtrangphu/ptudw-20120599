@@ -31,7 +31,7 @@
                 </thead>
                 <tbody class="align-middle">
                   {{#each items}}
-                    <tr>
+                    <tr id="product{{product.id}}">
                       <td><a href="/products/{{product.id}}"><img
                             src="{{product.imagePath}}"
                             alt="{{product.name}}"
@@ -42,17 +42,26 @@
                       <td>${{product.price}}</td>
                       <td>
                         <div class="qty">
-                          <button class="btn-minus"><i
-                              class="fa fa-minus"
-                            ></i></button>
-                          <input type="number" value="{{quantity}}" readonly />
-                          <button class="btn-plus"><i
-                              class="fa fa-plus"
-                            ></i></button>
+                          <button
+                            class="btn-minus"
+                            onclick="updateCart({{product.id}}, parseInt(document.getElementById('quantity{{product.id}}').value) - 1)"
+                          ><i class="fa fa-minus"></i></button>
+                          <input
+                            type="number"
+                            value="{{quantity}}"
+                            id="quantity{{product.id}}"
+                            readonly
+                          />
+                          <button
+                            class="btn-plus"
+                            onclick="updateCart({{product.id}}, parseInt(document.getElementById('quantity{{product.id}}').value) + 1)"
+                          ><i class="fa fa-plus"></i></button>
                         </div>
                       </td>
-                      <td>${{total}}</td>
-                      <td><button><i class="fa fa-trash"></i></button></td>
+                      <td id="total{{product.id}}">${{total}}</td>
+                      <td><button onclick="removeCart({{product.id}})"><i
+                            class="fa fa-trash"
+                          ></i></button></td>
                     </tr>
                   {{/each}}
                 </tbody>
@@ -71,13 +80,15 @@
             <div class="cart-summary">
               <div class="cart-content">
                 <h3>Cart Summary</h3>
-                <p>Sub Total<span>${{subtotal}}</span></p>
+                <p>Sub Total<span id="subtotal">${{subtotal}}</span></p>
                 <p>Shipping Cost<span>${{shipping}}</span></p>
-                <h4>Grand Total<span>${{total}}</span></h4>
+                <h4>Grand Total<span id="total">${{total}}</span></h4>
               </div>
               <div class="cart-btn">
-                <button>Update Cart</button>
-                <button>Checkout</button>
+                <button onclick="clearCart()">Clear Cart</button>
+                <button
+                  onclick="location.href='/users/checkout'"
+                >Checkout</button>
               </div>
             </div>
           </div>
